@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Arcade Nexus</title>
+    
+    <style>
+        /* ALL CSS DESIGN IS NOW SAFELY EMBEDDED HERE */
+        :root {
+            --bg-dark: #09090e;
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff00ea;
+            --neon-green: #00ff66;
+            --glass-bg: rgba(20, 20, 30, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .background-effects { position: fixed; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; }
+        .glow-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.4; }
+        .orb-1 { width: 400px; height: 400px; background: var(--neon-cyan); top: -100px; left: -100px; }
+        .orb-2 { width: 350px; height: 350px; background: var(--neon-pink); bottom: -50px; right: -50px; }
+
+        .glass-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem;
+            background: var(--glass-bg); backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon-cyan); }
+        
+        .player-badge {
+            display: flex; align-items: center; gap: 1rem;
+            background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 30px; border: 1px solid var(--glass-border);
+        }
+
+        .glass-panel {
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .app-container { max-width: 500px; margin: 2rem auto; padding: 0 1rem; text-align: center; }
+
+        .tabs { display: flex; padding: 6px; margin-bottom: 1.5rem; gap: 8px; }
+        .tab {
+            flex: 1; padding: 10px; background: transparent; border: none; color: #aaa;
+            border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .tab.active { background: rgba(255,255,255,0.1); color: white; text-shadow: 0 0 8px white; }
+
+        .game-view { display: none; padding: 2rem; }
+        .game-view.active { display: block; animation: fadeIn 0.4s ease-out; }
+
+        .glass-btn {
+            background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--glass-border);
+            padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .glass-btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+        .glass-btn.small { padding: 6px 12px; font-size: 0.8rem; border-radius: 20px; }
+        .glass-btn.primary {
+            background: linear-gradient(45deg, var(--neon-pink), #8a2be2); border: none;
+            box-shadow: 0 4px 15px rgba(255, 0, 234, 0.4);
+        }
+        .glass-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* TIC TAC TOE */
+        .ttt-wrapper { display: flex; justify-content: center; margin: 2rem 0; }
+        .ttt-grid { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 8px; }
+        .ttt-cell {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 3.5rem; font-weight: 900; cursor: pointer; transition: 0.2s; line-height: 1;
+        }
+        .ttt-cell:hover:empty { background: rgba(255,255,255,0.1); }
+        .cell-x { color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); animation: pop 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+        .cell-o { color: var(--neon-pink); text-shadow: 0 0 15px var(--neon-pink); animation: pop 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+
+        /* SNAKES & LADDERS */
+        .snakes-wrapper {
+            position: relative; width: 340px; height: 340px; margin: 1.5rem auto;
+            border: 2px solid var(--glass-border); border-radius: 8px; overflow: hidden;
+        }
+        .snakes-grid {
+            display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr);
+            width: 100%; height: 100%;
+        }
+        .snake-cell {
+            border: 1px solid rgba(255,255,255,0.03); display: flex;
+            align-items: flex-start; padding: 2px; font-size: 0.6rem; color: #555;
+        }
+        .snake-cell:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+        #snakes-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+
+        .pawn {
+            width: 12px; height: 12px; border-radius: 50%; position: absolute;
+            z-index: 20; transition: all 0.4s ease-in-out;
+        }
+        .pawn-user { background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); margin-left: 2px; margin-top: 18px; }
+        .pawn-ai { background: var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); margin-left: 18px; margin-top: 18px; }
+
+        .dice-controls { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .dice { font-size: 3rem; text-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        .dice.rolling { animation: shake 0.4s infinite; }
+
+        /* POPUP MODAL */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-overlay.show { display: flex; animation: fadeIn 0.3s ease-out; }
+        .modal-content {
+            padding: 2rem; text-align: center; max-width: 400px; width: 90%;
+            border: 1px solid var(--neon-cyan); background: var(--glass-bg);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2); transform: scale(0.9);
+            animation: popModal 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28) forwards;
+        }
+        .modal-content h2 { margin-bottom: 1rem; color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); font-size: 2rem; }
+        .modal-content p { margin-bottom: 2rem; font-size: 1.2rem; }
+
+        @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        @keyframes shake { 0% { transform: rotate(-15deg); } 50% { transform: rotate(15deg); } 100% { transform: rotate(-15deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popModal { to { transform: scale(1); } }
+    </style>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <header class="glass-header">
+        <div class="logo">AI ARCADE</div>
+        <div class="player-badge">
+            <span id="username-display">Guest_User</span>
+            <button class="glass-btn small" onclick="generateProfile()">⚡ AI Rename</button>
+        </div>
+    </header>
+
+    <main class="app-container">
+        <div class="tabs glass-panel">
+            <button class="tab active" onclick="switchTab('ttt', this)">Tic-Tac-Toe</button>
+            <button class="tab" onclick="switchTab('snakes', this)">Snakes & Ladders</button>
+        </div>
+
+        <!-- TIC-TAC-TOE -->
+        <div id="view-ttt" class="game-view active glass-panel">
+            <h2 id="ttt-msg" class="game-title">Your Turn (X)</h2>
+            <div class="ttt-wrapper">
+                <div id="ttt-grid" class="ttt-grid"></div>
+            </div>
+            <button class="glass-btn primary" onclick="initTTT()">Reset Board</button>
+        </div>
+
+        <!-- SNAKES AND LADDERS -->
+        <div id="view-snakes" class="game-view glass-panel">
+            <h2 id="snakes-msg" class="game-title">Roll the dice to start!</h2>
+            
+            <div class="snakes-wrapper">
+                <div id="snakes-grid" class="snakes-grid"></div>
+                <canvas id="snakes-canvas"></canvas>
+            </div>
+
+            <div class="dice-controls">
+                <div id="dice-visual" class="dice">🎲</div>
+                <button id="btn-roll" class="glass-btn primary" onclick="playSnakes()">Roll Dice</button>
+                <button class="glass-btn" onclick="initSnakes(true)" style="margin-top: 10px;">Reset Game</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- CUSTOM POPUP MODAL -->
+    <div id="game-modal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <h2 id="modal-title">Game Over</h2>
+            <p id="modal-msg">You Won!</p>
+            <button class="glass-btn primary" onclick="closeModal()">Awesome!</button>
+        </div>
+    </div>
+
+    <script>
+        /* ALL JAVASCRIPT LOGIC IS NOW SAFELY EMBEDDED HERE */
+        document.addEventListener("DOMContentLoaded", () => {
+            initTTT();
+            generateProfile();
+        });
+
+        // Tab Switching logic
+        function switchTab(view, btnElement) {
+            document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.game-view').forEach(v => v.classList.remove('active'));
+            btnElement.classList.add('active');
+            document.getElementById(`view-${view}`).classList.add('active');
+
+            if (view === 'snakes') {
+                setTimeout(() => initSnakes(false), 50);
+            }
+        }
+
+        async function generateProfile() {
+            try {
+                const res = await fetch("/api/generate-ai-profile", { method: "POST" });
+                const data = await res.json();
+                document.getElementById("username-display").innerText = data.username;
+            } catch (e) {
+                console.error("Profile error:", e);
+            }
+        }
+
+        // --- POPUP LOGIC ---
+        function showModal(title, msg, colorVar) {
+            const modal = document.getElementById("game-modal");
+            const titleEl = document.getElementById("modal-title");
+            
+            titleEl.innerText = title;
+            document.getElementById("modal-msg").innerText = msg;
+            
+            titleEl.style.color = `var(${colorVar})`;
+            titleEl.style.textShadow = `0 0 10px var(${colorVar})`;
+            modal.querySelector('.modal-content').style.borderColor = `var(${colorVar})`;
+            modal.querySelector('.modal-content').style.boxShadow = `0 0 30px var(${colorVar})`;
+            
+            modal.classList.add("show");
+        }
+
+        function closeModal() {
+            document.getElementById("game-modal").classList.remove("show");
+        }
+
+        // ==========================================
+        // 1. TIC TAC TOE
+        // ==========================================
+        let tttBoard = Array(9).fill(null);
+        let tttActive = true;
+
+        function initTTT() {
+            tttBoard = Array(9).fill(null);
+            tttActive = true;
+            document.getElementById("ttt-msg").innerText = "Your Turn (X)";
+            
+            const grid = document.getElementById("ttt-grid");
+            grid.innerHTML = "";
+            for(let i = 0; i < 9; i++) {
+                let cell = document.createElement("div");
+                cell.className = "ttt-cell";
+                cell.onclick = () => makeTTTMove(i, cell);
+                grid.appendChild(cell);
+            }
+        }
+
+        async function makeTTTMove(idx, cellElement) {
+            if(tttBoard[idx] || !tttActive) return;
+
+            tttBoard[idx] = "X";
+            cellElement.innerText = "X";
+            cellElement.classList.add("cell-x");
+            document.getElementById("ttt-msg").innerText = "AI is thinking...";
+
+            const res = await fetch("/api/tictactoe/move", {
+                method: "POST", headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({board: tttBoard})
+            });
+            const data = await res.json();
+
+            if(data.move !== null) {
+                tttBoard[data.move] = "O";
+                let aiCell = document.getElementById("ttt-grid").children[data.move];
+                aiCell.innerText = "O";
+                aiCell.classList.add("cell-o");
+            }
+
+            if(data.winner) {
+                tttActive = false;
+                let msg = data.winner === "Tie" ? "It's a Draw!" : (data.winner === "X" ? "You Won! 🎉" : "AI Wins! 💀");
+                document.getElementById("ttt-msg").innerText = msg;
+                
+                setTimeout(() => {
+                    if (data.winner === "X") showModal("Victory!", "You beat the AI!", "--neon-cyan");
+                    else if (data.winner === "O") showModal("Defeat!", "The AI outsmarted you.", "--neon-pink");
+                    else showModal("Draw!", "It's a stalemate.", "--neon-green");
+                }, 500);
+            } else {
+                document.getElementById("ttt-msg").innerText = "Your Turn (X)";
+            }
+        }
+
+        // ==========================================
+        // 2. SNAKES AND LADDERS
+        // ==========================================
+        let playerPos = 1;
+        let aiPos = 1;
+        let isRolling = false;
+        let cellCoords = {};
+
+        const jumps = {
+            4: 14, 9: 31, 20: 38, 28: 84, 40: 59, 51: 67, 63: 81, 71: 91, // Ladders
+            17: 7, 54: 34, 62: 19, 64: 60, 87: 24, 93: 73, 95: 75, 99: 78  // Snakes
+        };
+
+        function initSnakes(fullReset = false) {
+            if (fullReset) {
+                playerPos = 1;
+                aiPos = 1;
+                document.getElementById("snakes-msg").innerText = "Roll the dice to start!";
+            }
+
+            const grid = document.getElementById("snakes-grid");
+            grid.innerHTML = "";
+            cellCoords = {};
+
+            let count = 100;
+            for (let row = 0; row < 10; row++) {
+                let rowCells = [];
+                for (let col = 0; col < 10; col++) {
+                    rowCells.push(count--);
+                }
+                if (row % 2 !== 0) rowCells.reverse();
+                
+                rowCells.forEach(num => {
+                    let cell = document.createElement("div");
+                    cell.className = "snake-cell";
+                    cell.id = `sq-${num}`;
+                    
+                    let numSpan = document.createElement("span");
+                    numSpan.innerText = num;
+                    cell.appendChild(numSpan);
+
+                    if (jumps[num]) {
+                        let badge = document.createElement("span");
+                        badge.style.fontSize = "0.75rem";
+                        badge.style.marginLeft = "auto";
+                        badge.innerText = jumps[num] > num ? "🪜" : "🐍";
+                        cell.appendChild(badge);
+                    }
+
+                    grid.appendChild(cell);
+                });
+            }
+
+            setTimeout(() => {
+                calculateCoords();
+                drawBoardGraphics();
+                renderPawns();
+            }, 50);
+        }
+
+        function calculateCoords() {
+            for(let i = 1; i <= 100; i++) {
+                let el = document.getElementById(`sq-${i}`);
+                if (el) {
+                    cellCoords[i] = {
+                        x: el.offsetLeft + (el.offsetWidth / 2),
+                        y: el.offsetTop + (el.offsetHeight / 2)
+                    };
+                }
+            }
+        }
+
+        function drawBoardGraphics() {
+            const canvas = document.getElementById("snakes-canvas");
+            const wrapper = document.querySelector(".snakes-wrapper");
+            
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
+            
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let [start, end] of Object.entries(jumps)) {
+                start = parseInt(start);
+                const p1 = cellCoords[start];
+                const p2 = cellCoords[end];
+
+                if (!p1 || !p2) continue;
+
+                ctx.beginPath();
+                
+                if (start < end) {
+                    ctx.setLineDash([]);
+                    ctx.strokeStyle = "rgba(0, 255, 102, 0.7)";
+                    ctx.lineWidth = 3;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = "#00ff66";
+                    
+                    ctx.moveTo(p1.x - 4, p1.y);
+                    ctx.lineTo(p2.x - 4, p2.y);
+                    ctx.moveTo(p1.x + 4, p1.y);
+                    ctx.lineTo(p2.x + 4, p2.y);
+                    ctx.stroke();
+                } else {
+                    ctx.setLineDash([4, 4]);
+                    ctx.strokeStyle = "rgba(255, 0, 85, 0.8)";
+                    ctx.lineWidth = 4;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = "#ff0055";
+
+                    const midX = (p1.x + p2.x) / 2 + 15;
+                    const midY = (p1.y + p2.y) / 2 - 15;
+
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.quadraticCurveTo(midX, midY, p2.x, p2.y);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        async function playSnakes() {
+            if(isRolling) return;
+            isRolling = true;
+            
+            const btn = document.getElementById("btn-roll");
+            const dice = document.getElementById("dice-visual");
+            const msg = document.getElementById("snakes-msg");
+
+            btn.disabled = true;
+            dice.classList.add("rolling");
+            msg.innerText = "Rolling...";
+            
+            const res = await fetch("/api/snakes/roll", {
+                method: "POST", headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({pos: playerPos})
+            });
+            const data = await res.json();
+            
+            setTimeout(async () => {
+                dice.classList.remove("rolling");
+                dice.innerText = getDiceEmoji(data.dice);
+                playerPos = data.new_pos;
+                renderPawns();
+                
+                if(data.winner) {
+                    msg.innerText = "You Won! 🎉";
+                    setTimeout(() => showModal("Victory!", "You reached square 100 first! 🎉", "--neon-cyan"), 600);
+                    return;
+                }
+
+                msg.innerText = `You rolled ${data.dice}. AI is rolling...`;
+                setTimeout(async () => {
+                    dice.classList.add("rolling");
+                    
+                    const resAI = await fetch("/api/snakes/roll", {
+                        method: "POST", headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({pos: aiPos})
+                    });
+                    const dataAI = await resAI.json();
+                    
+                    setTimeout(() => {
+                        dice.classList.remove("rolling");
+                        dice.innerText = getDiceEmoji(dataAI.dice);
+                        aiPos = dataAI.new_pos;
+                        renderPawns();
+                        
+                        if(dataAI.winner) {
+                            msg.innerText = "AI Won! 💀";
+                            setTimeout(() => showModal("Defeat!", "The AI reached square 100 first. 💀", "--neon-pink"), 600);
+                        } else {
+                            msg.innerText = `AI rolled ${dataAI.dice}. Your Turn!`;
+                            btn.disabled = false;
+                            isRolling = false;
+                        }
+                    }, 600);
+                }, 1000);
+                
+            }, 600);
+        }
+
+        function renderPawns() {
+            document.querySelectorAll(".pawn").forEach(p => p.remove());
+
+            const p1Square = document.getElementById(`sq-${playerPos}`);
+            const aiSquare = document.getElementById(`sq-${aiPos}`);
+
+            if (p1Square) {
+                let pToken = document.createElement("div");
+                pToken.className = "pawn pawn-user";
+                p1Square.appendChild(pToken);
+            }
+            
+            if (aiSquare) {
+                let aiToken = document.createElement("div");
+                aiToken.className = "pawn pawn-ai";
+                aiSquare.appendChild(aiToken);
+            }
+        }
+
+        function getDiceEmoji(n) { return ['⚀','⚁','⚂','⚃','⚄','⚅'][n-1] || '🎲'; }
+    </script>
+</body>
+</html>
