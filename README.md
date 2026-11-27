@@ -1,39 +1,39 @@
-**PRACTICAL 3** <br>
-THIS IS Aquaguard AI DLS<br>
-LINK: [Project Link](https://github.com/varshith1708/aquasure) <br>
+**Practical 3** <br>
+This is Aquaguard-AI DLS<br>
+Project Link: [Click Here](https://github.com/AbhiramThanniru/Aquasure-AI) <br>
 
-**PRACTICAL 4** <br>
-THIS IS  AI-powered TIC TAC TOE <br>
-LINK: [Project Link](github.com/varshith1708/tic-tac-toe) <br>
+**Practical 4** <br>
+This is AI-Powered Tic_Tac_Toe <br>
+Project Link: [Click Here](https://github.com/AbhiramThanniru/Tic_Tac_Toe-AI) <br>
 
-**PRACTICAL 5** <br>
- THIS IS LoanHub - Professional Digital Lending <br>
- LINK: [Project Link](https://github.com/varshith1708/LOAN-AI) <br>
+**Practical 5** <br>
+ This is LoanHub - Professional Digital Lending <br>
+ Project Link: [Click Here](https://github.com/AbhiramThanniru/Loan-AI) <br>
 
- **PRACTICAL 6** <br>
-  THIS IS BUS-TICKET-BOOKING <br>
-  LINK: [Project Link](https://github.com/varshith1708/BUS-BOOKING-TICKET-APPLICATION) <br>
+ **Practical 6** <br>
+  This is Bus_Ticket_Booking-AI <br>
+  Project Link: [Click here](https://github.com/AbhiramThanniru/Bus_Ticket_Booking-AI) <br>
 
- **PRACTICAL 7** <br>
-  THIS IS Bayesian-Network <br>
-  LINK: [Project Link](https://github.com/varshith1708/bayesian-and-p-value-prediction__autosense-application) <br>
+ **Practical 7** <br>
+  This is Bayesian_Network <br>
+  Project Link: [Click here](https://github.com/AbhiramThanniru/Bayesian_and_p_value_prediction-AI) <br>
 
-**PRACTICAL 8** <br>
- THIS IS HostelAI <br>
- LINK: [Project Link](https://github.com/varshith1708/HOSTEL-AI) <br>
+**Practical 8** <br>
+ This is HostelAI <br>
+ Project Link: [Click here](https://github.com/AbhiramThanniru/Hostel-AI) <br>
 
- **PRACTICAL 9** <br>
- THIS IS Airport Planning System using STRIPS. <br>
- LINK: [Project Link](https://github.com/varshith1708/planning-problem-using-STRIPS-goal-stack-planning) <br>
+ **Practical 9** <br>
+ This is Airport Planning System using STRIPS. <br>
+ Project Link: [Click here](https://github.com/AbhiramThanniru/Planning_problem_using_STRIPS-AI) <br>
 
- **PRACTICAL 10** <br>
- THIS IS policy-based-decision-making-in-crop <br>
-LINK: [Project Link](https://github.com/varshith1708/policy-based-decision-making-in-crop) <br>
+ **Practical 10** <br>
+ This is Policy_Based_Decision_Making_In_Crop <br>
+Project Link: [Click here](https://github.com/AbhiramThanniru/Policy_Based_Decision_Making-AI) <br>
 
-**PRACTICAL 11** <br>
- THIS IS Smart Crop Irrigation AI System <br>
-LINK: [Project Link](https://github.com/varshith1708/Smart-Crop-Irrigation-AI-System) <br>
+**Practical 11** <br>
+ This is Smart Crop Irrigation AI System <br>
+Project Link: [Click here](https://github.com/AbhiramThanniru/Smart_Crop_Irrigation-AI) <br>
 
-**PRACTICAL 12** <br>
- THIS IS AI Mentor – Intelligent AI/ML Educational Chatbot <br>
- LINK: [Project Link](https://github.com/varshith1708/AI-Mentor) <br>
+**Practical 12** <br>
+ This is AI Mentor – Intelligent AI/ML Educational Chatbot <br>
+ Project Link: [Click here](https://github.com/AbhiramThanniru/AI_Mentor) <br>
